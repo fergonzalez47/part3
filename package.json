@@ -1,0 +1,30 @@
+{
+  "name": "part3",
+  "version": "1.0.0",
+  "description": "part3",
+  "homepage": "https://github.com/fergonzalez47/part3#readme",
+  "bugs": {
+    "url": "https://github.com/fergonzalez47/part3/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fergonzalez47/part3.git"
+  },
+  "license": "ISC",
+  "author": "fernando Gonzalez",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
