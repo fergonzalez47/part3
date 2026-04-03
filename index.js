@@ -104,9 +104,10 @@ app.post('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
 
-    const id = Number(request.params.id);
+    //mongoDB no da numeros , sino strings. const id = Number(request.params.id);
+    const id = request.params.id;
     const person = Person.findById(id)
-    then(person => {
+    .then(person => {
         response.json(person);
     });
 
