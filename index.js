@@ -71,7 +71,6 @@ app.post('/api/persons', (request, response) => {
 
     let person = request.body;
 
-  
 
     if (!person.name || !person.number) {
         return response.status(400).json({
@@ -88,15 +87,23 @@ app.post('/api/persons', (request, response) => {
     }
 
 
-    const newPerson = new Person({
-        name: person.name,
-        number: person.number
-    })
+    Person.findOne({ name: person.name })
+        .then(existingPerson => {
+            if (existingPerson) {
+                return response.status(400).json({
+                    error: 'name must be unique'
+                })
+            }
+            const newPerson = new Person({
+                name: person.name,
+                number: person.number
+            })
 
-    newPerson.save()
-        .then(savedPerson => {
-            response.json(savedPerson);
-    })
+            newPerson.save()
+                .then(savedPerson => {
+                    response.json(savedPerson);
+                })
+        })
 })
 
 
