@@ -11,7 +11,7 @@ app.use(express.json());
 
 app.use(express.static('dist'))
 
-morgan.token('body', (req, res) => {
+morgan.token('body', (req) => {
     return JSON.stringify(req.body)
 })
 
@@ -47,9 +47,9 @@ let persons = [
     }
 ]
 
-const generateId = () => {
-    return Math.floor(Math.random() * 1000000000)
-}
+// const generateId = () => {
+//     return Math.floor(Math.random() * 1000000000)
+// }
 
 app.get('/', (request, response) => {
     response.send("<h1>Hello world</h1>")
@@ -136,7 +136,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id;
     Person.findByIdAndDelete(id)
         .then(
-            result => {
+            () => {
                 response.status(204).end();
             })
         .catch(error => next(error))
