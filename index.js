@@ -63,29 +63,18 @@ app.get('/api/persons', (request, response) => {
     Person.find({})
         .then(persons => {
             response.json(persons);
-    })
+        })
 })
 
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
 
     let person = request.body;
-
-
     if (!person.name || !person.number) {
         return response.status(400).json({
             error: 'name or number missing'
         })
     }
-
-    const existingPerson = persons.find(ep => ep.name === person.name);
-
-    if (existingPerson) {
-        return response.status(400).json({
-            error: 'name must be unique' 
-        })
-    }
-
 
     Person.findOne({ name: person.name })
         .then(existingPerson => {
@@ -94,42 +83,66 @@ app.post('/api/persons', (request, response) => {
                     error: 'name must be unique'
                 })
             }
+
             const newPerson = new Person({
                 name: person.name,
                 number: person.number
             })
 
-            newPerson.save()
-                .then(savedPerson => {
-                    response.json(savedPerson);
-                })
+            return newPerson.save()
         })
+        .then(savedPerson => {
+            response.json(savedPerson);
+        })
+        .catch(error => next(error))
 })
 
 
 
-
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
 
     const id = request.params.id;
 
     Person.findById(id)
         .then(person => {
             if (person) {
-                response.json(person)
+                return response.json(person)
             } else {
-                response.status(404).end()
+                return response.status(404).end()
             }
         })
+        .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+
+app.put('/api/persons/:id', (request, response, next) => {
 
 
-    const id = Number(request.params.id);
-    persons = persons.filter(person => person.id !== id);
+    const id = request.params.id;
+    const { name, number } = request.body;
+    Person.findByIdAndUpdate(id, { name, number }, { returnDocument: 'after', runValidators: true, context: 'query' })
+        .then(
+            updatePerson => {
+                response.json(updatePerson);
+            })
+        .catch(error => next(error))
 
-    response.status(204).end();
+})
+
+
+app.delete('/api/persons/:id', (request, response, next) => {
+
+
+    const id = request.params.id;
+    Person.findByIdAndDelete(id)
+        .then(
+            result => {
+                response.status(204).end();
+            })
+        .catch(error => next(error))
+    // persons = persons.filter(person => person.id !== id);
+
+    // response.status(204).end();
 
 })
 
@@ -153,7 +166,20 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
+//este middleware debe ser siempre el ultimo
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
 
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 const date = new Date();
 
